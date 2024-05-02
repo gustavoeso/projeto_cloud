@@ -1,66 +1,60 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Template completo para criar uma VPC com subnets públicas e privadas.
-
 Resources:
-  MinhaVPC:
-    Type: AWS::EC2::VPC
+  # Launch Configuration
+  AppLaunchConfiguration:
+    Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      CidrBlock: 10.0.0.0/16
-      EnableDnsSupport: true
-      EnableDnsHostnames: true
-      Tags:
-        - Key: Name
-          Value: MinhaVPC
+      ImageId: ami-1234567890abcdef0  # Substitua pelo ID da AMI adequado
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: securityGroup
 
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
+  # Auto Scaling Group
+  AppAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      Tags:
-        - Key: Name
-          Value: MeuInternetGateway
+      LaunchConfigurationName: !Ref AppLaunchConfiguration
+      MinSize: '1'
+      MaxSize: '3'
+      DesiredCapacity: '2'
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet
+      TargetGroupARNs:
+        - !Ref AppTargetGroup
+      MetricsCollection:
+        - Granularity: "1Minute"
 
-  GatewayAttachment:
-    Type: AWS::EC2::VPCGatewayAttachment
+  # Application Load Balancer, Target Group, and Listener
+  AppLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Subnets:
+        - !Ref PublicSubnet
+  AppTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref MinhaVPC
-      InternetGatewayId: !Ref InternetGateway
-
-  PublicSubnet:
-    Type: AWS::EC2::Subnet
+      Protocol: HTTP
+      Port: 80
+  Listener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      VpcId: !Ref MinhaVPC
-      CidrBlock: 10.0.1.0/24
-      MapPublicIpOnLaunch: true
-      AvailabilityZone: us-east-1a
-      Tags:
-        - Key: Name
-          Value: PublicSubnet
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref AppTargetGroup
+      LoadBalancerArn: !Ref AppLoadBalancer
+      Port: 80
+      Protocol: HTTP
 
-  PublicRouteTable:
-    Type: AWS::EC2::RouteTable
+  # DynamoDB Table
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
     Properties:
-      VpcId: !Ref MinhaVPC
-
-  PublicRoute:
-    Type: AWS::EC2::Route
-    Properties:
-      RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-
-  PublicSubnetRouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref PublicSubnet
-      RouteTableId: !Ref PublicRouteTable
-
-  securityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: Permitir trafego HTTP e SSH
-      VpcId: !Ref MinhaVPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: '22'
-          ToPort: '22'
-          CidrIp: 0.0.0.0/0
+      AttributeDefinitions:
+        - AttributeName: "ID"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "ID"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: "5"
+        WriteCapacityUnits: "5"
