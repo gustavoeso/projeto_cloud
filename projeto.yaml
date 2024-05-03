@@ -1,12 +1,81 @@
 Resources:
+
+  SecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Grupo de Seguranca para acesso a aplicacao"
+      VpcId: !Ref MinhaVPC
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0  # Abre a porta 80 para todo o tráfego (HTTP)
+        - IpProtocol: "tcp"
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0  # Abre a porta 22 para todo o tráfego (SSH)
+      Tags:
+        - Key: Name
+          Value: SecurityGroup
+
+  MinhaVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: Name
+          Value: MinhaVPC
+
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MinhaVPC
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnet1
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MinhaVPC
+      CidrBlock: 10.0.2.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: PublicSubnet2
+
   # Launch Configuration
   AppLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      ImageId: ami-1234567890abcdef0  # Substitua pelo ID da AMI adequado
+      ImageId: ami-07caf09b362be10b8
       InstanceType: t2.micro
       SecurityGroups:
-        - Ref: securityGroup
+        - !Ref SecurityGroup
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          # Instalar Python e pip
+          sudo yum install -y python3-pip python3
+          # Instalar AWS CLI
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          # Instalar AWS SDK para Python (Boto3)
+          sudo pip3 install boto3
+          # Criar diretório para a aplicação
+          mkdir -p /opt/app
+          cd /opt/app
+          # Baixar a aplicação do S3
+          aws s3 cp s3://bucket-projeto.py /opt/app/aplicacao.py
+          # Executar a aplicação (ajustar conforme necessário)
+          python3 /opt/app/aplicacao.py
 
   # Auto Scaling Group
   AppAutoScalingGroup:
@@ -14,10 +83,11 @@ Resources:
     Properties:
       LaunchConfigurationName: !Ref AppLaunchConfiguration
       MinSize: '1'
-      MaxSize: '3'
-      DesiredCapacity: '2'
+      MaxSize: '5'
+      DesiredCapacity: '3'
       VPCZoneIdentifier:
-        - !Ref PublicSubnet
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
       TargetGroupARNs:
         - !Ref AppTargetGroup
       MetricsCollection:
@@ -27,8 +97,12 @@ Resources:
   AppLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
+      Type: "application"
       Subnets:
-        - !Ref PublicSubnet
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      SecurityGroups:
+        - !Ref SecurityGroup
   AppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
@@ -44,6 +118,45 @@ Resources:
       LoadBalancerArn: !Ref AppLoadBalancer
       Port: 80
       Protocol: HTTP
+
+    # Criar o Internet Gateway
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  # Anexar o Internet Gateway à VPC
+  GatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref MinhaVPC
+      InternetGatewayId: !Ref InternetGateway
+
+        # Tabela de rotas para a VPC
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MinhaVPC
+
+  # Rota para o tráfego de internet
+  InternetRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+
+  # Associar subnets públicas à tabela de rotas
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+
 
   # DynamoDB Table
   DynamoDBTable:
