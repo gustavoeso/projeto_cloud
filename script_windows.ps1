@@ -1,5 +1,5 @@
 # Definir variáveis
-$BUCKET_NAME="bucket-projeto" # Com data e hora para evitar conflitos
+$BUCKET_NAME="bucket-projeto-gustavo" # Com data e hora para evitar conflitos
 $REGION="us-east-1"  # Substitua conforme necessário
 $FILE_TO_UPLOAD="aplicacao.py"
 

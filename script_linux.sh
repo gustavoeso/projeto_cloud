@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Definir variáveis
-BUCKET_NAME="bucket-projeto"  # Nome único usando timestamp
+BUCKET_NAME="bucket-projeto-gustavo"  # Nome único usando timestamp
 REGION="us-east-1"  # Escolha a região conforme necessário
 FILE_TO_UPLOAD="aplicacao.py"  # Arquivo para upload
 

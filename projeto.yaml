@@ -4,7 +4,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Grupo de Seguranca para acesso a aplicacao"
-      VpcId: !Ref MinhaVPC
+      VpcId: !Ref gustavoVPC
       SecurityGroupIngress:
         - IpProtocol: "tcp"
           FromPort: 80
@@ -18,7 +18,7 @@ Resources:
         - Key: Name
           Value: SecurityGroup
 
-  MinhaVPC:
+  gustavoVPC:
     Type: AWS::EC2::VPC
     Properties:
       CidrBlock: 10.0.0.0/16
@@ -26,12 +26,12 @@ Resources:
       EnableDnsHostnames: true
       Tags:
         - Key: Name
-          Value: MinhaVPC
+          Value: gustavoVPC
 
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref MinhaVPC
+      VpcId: !Ref gustavoVPC
       CidrBlock: 10.0.1.0/24
       AvailabilityZone: !Select [0, !GetAZs '']
       MapPublicIpOnLaunch: true
@@ -42,13 +42,40 @@ Resources:
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref MinhaVPC
+      VpcId: !Ref gustavoVPC
       CidrBlock: 10.0.2.0/24
       AvailabilityZone: !Select [1, !GetAZs '']
       MapPublicIpOnLaunch: true
       Tags:
         - Key: Name
           Value: PublicSubnet2
+
+  # IAM Role para acesso ao S3
+  S3AccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "AccessS3Bucket"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action: "s3:GetObject"
+                Resource: "arn:aws:s3:::bucket-projeto-gustavo/*"
+
+  # Instance Profile para a IAM Role
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref S3AccessRole
 
   # Launch Configuration
   AppLaunchConfiguration:
@@ -58,6 +85,7 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - !Ref SecurityGroup
+      IamInstanceProfile: !Ref EC2InstanceProfile
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -73,7 +101,7 @@ Resources:
           mkdir -p /opt/app
           cd /opt/app
           # Baixar a aplicação do S3
-          aws s3 cp s3://bucket-projeto.py /opt/app/aplicacao.py
+          aws s3 cp s3://bucket-projeto-gustavo/aplicacao.py /opt/app/aplicacao.py
           # Executar a aplicação (ajustar conforme necessário)
           python3 /opt/app/aplicacao.py
 
@@ -106,9 +134,16 @@ Resources:
   AppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      VpcId: !Ref MinhaVPC
+      VpcId: !Ref gustavoVPC
       Protocol: HTTP
       Port: 80
+      HealthCheckProtocol: HTTP
+      HealthCheckPort: "80"
+      HealthCheckPath: "/"
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 3
+      UnhealthyThresholdCount: 3
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -127,14 +162,14 @@ Resources:
   GatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref MinhaVPC
+      VpcId: !Ref gustavoVPC
       InternetGatewayId: !Ref InternetGateway
 
         # Tabela de rotas para a VPC
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref MinhaVPC
+      VpcId: !Ref gustavoVPC
 
   # Rota para o tráfego de internet
   InternetRoute:
