@@ -62,13 +62,21 @@ Resources:
               Service: "ec2.amazonaws.com"
             Action: "sts:AssumeRole"
       Policies:
-        - PolicyName: "AccessS3Bucket"
+        - PolicyName: "AccessS3BucketAndDynamoDB"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
               - Effect: "Allow"
                 Action: "s3:GetObject"
                 Resource: "arn:aws:s3:::bucket-projeto-gustavo/*"
+              - Effect: "Allow"
+                Action:
+                  - "dynamodb:Scan"
+                  - "dynamodb:PutItem"
+                  - "dynamodb:DeleteItem"
+                  - "dynamodb:GetItem"
+                  - "dynamodb:UpdateItem"
+                Resource: "arn:aws:dynamodb:us-east-1:116979769772:table/Users"
 
   # Instance Profile para a IAM Role
   EC2InstanceProfile:
@@ -199,12 +207,16 @@ Resources:
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
+      TableName: "Users"
       AttributeDefinitions:
-        - AttributeName: "ID"
+        - AttributeName: "UserID"
           AttributeType: "S"
       KeySchema:
-        - AttributeName: "ID"
+        - AttributeName: "UserID"
           KeyType: "HASH"
       ProvisionedThroughput:
-        ReadCapacityUnits: "5"
-        WriteCapacityUnits: "5"
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      Tags:
+        - Key: "Name"
+          Value: "Users"

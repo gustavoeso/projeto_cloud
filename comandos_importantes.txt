@@ -1,4 +1,4 @@
-rodar o comando abaixo para criar o bucket
+Script para criacao de bucket:
     ./script_windows.ps1
 
 create stack:
@@ -7,3 +7,7 @@ create stack:
 Criar usuario:
     curl -X POST http://<DNS-DO-ALB>/create_user -H "Content-Type: application/json" -d '{"user_id": "1", "user_name": "Exemplo"}'
         Onde <DNS-DO-ALB> é o DNS do Aplication Load Balancer
+
+Deletar usuario:
+    curl -X DELETE "http://<DNS-DO-ALB>/delete_user?user_id=<ID-DO-USUARIO>"
+        Onde <DNS-DO-ALB> é o DNS do Aplication Load Balancer e <ID-DO-USUARIO> é o ID do usuario que deseja deletar
