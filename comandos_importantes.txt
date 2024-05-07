@@ -1,0 +1,9 @@
+rodar o comando abaixo para criar o bucket
+    ./script_windows.ps1
+
+create stack:
+    aws cloudformation create-stack --stack-name StackTeste1Gustavo --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
+
+Criar usuario:
+    curl -X POST http://<DNS-DO-ALB>/create_user -H "Content-Type: application/json" -d '{"user_id": "1", "user_name": "Exemplo"}'
+        Onde <DNS-DO-ALB> é o DNS do Aplication Load Balancer
