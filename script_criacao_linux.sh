@@ -4,6 +4,8 @@
 BUCKET_NAME="bucket-projeto-gustavo"  # Nome único usando timestamp
 REGION="us-east-1"  # Escolha a região conforme necessário
 FILE_TO_UPLOAD="aplicacao.py"  # Arquivo para upload
+TEMPLATE_FILE="projeto.yaml"  # Caminho para o arquivo de template do CloudFormation
+STACK_NAME="StackGustavo"
 
 # Criar o bucket no S3
 echo "Criando bucket: $BUCKET_NAME"
@@ -22,6 +24,16 @@ if [ $? -eq 0 ]; then
     # Verificar se o upload foi bem-sucedido
     if [ $? -eq 0 ]; then
         echo "Arquivo carregado com sucesso."
+
+        # Criar a stack no CloudFormation
+        echo "Criando a stack do CloudFormation..."
+        aws cloudformation create-stack --stack-name $STACK_NAME --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
+
+        if [ $? -eq 0 ]; then
+            echo "Stack criada com sucesso."
+        else
+            echo "Falha ao criar a stack."
+        fi
     else
         echo "Falha no upload do arquivo."
     fi

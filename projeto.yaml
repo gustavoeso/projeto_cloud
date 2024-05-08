@@ -220,3 +220,11 @@ Resources:
       Tags:
         - Key: "Name"
           Value: "Users"
+
+
+Outputs:
+  LoadBalancerDNS:
+    Description: "DNS Name of the Application Load Balancer"
+    Value: !GetAtt AppLoadBalancer.DNSName
+    Export:
+      Name: "LoadBalancerDNSName"

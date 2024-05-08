@@ -1,9 +1,41 @@
-Script para criacao de bucket:
-    ./script_windows.ps1
+############################################################ CRIACAO DE BUCKET E STACK ############################################################
 
-create stack:
-    aws cloudformation create-stack --stack-name StackTeste1Gustavo --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
+O script foi modificado para que alem dele criar o bucket, ele tambem cria o stack logo depois.
 
+Rodar o script no windows:
+    ./script_criacao_windows.ps1
+
+Rodar o script no linux:
+    chmod +x script_criacao_linux.sh
+    ./script_criacao_linux.sh
+
+    ############################################################ DELETAR BUCKET E STACK ############################################################
+
+Foi criado um script para deletar o bucket e o script com um comando apenas.
+
+Rodar o script no windows:
+    ./script_deletar_windows.ps1
+
+Rodar o script no linux:
+    chmod +x script_deletar_linux.sh
+    ./script_deletar_linux.sh
+
+############################################################ STACK ############################################################
+
+Editar stack:
+    aws cloudformation update-stack --stack-name <Nome-da-sua-stack> --template-body file://projeto.yaml --parameters ParameterKey=ParamName,ParameterValue=ParamValue
+        Onde <Nome-da-sua-stack> é o nome da stack criada
+
+
+############################################################ DNS ALB ############################################################
+
+Pegar DNS do Load Balancer:
+    aws cloudformation describe-stacks --stack-name <nome-da-sua-stack> --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDNS`].OutputValue' --output text
+        Onde <nome-da-sua-stack> é o nome da stack que deseja pegar o DNS (pode ser o mesmo nome que deu na criação da stack)
+
+
+Assim que pegar o DNS do Load Balancer, você pode usar ele para entrar na rota de listar usuários (DNS.com/list_users), e usar os comandos abaixo para criar e
+deletar usuários:
 Criar usuario:
     curl -X POST http://<DNS-DO-ALB>/create_user -H "Content-Type: application/json" -d '{"user_id": "1", "user_name": "Exemplo"}'
         Onde <DNS-DO-ALB> é o DNS do Aplication Load Balancer
