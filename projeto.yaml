@@ -1,5 +1,5 @@
 Resources:
-
+  # # Definição do grupo de segurança que especifica as regras de tráfego permitidas para as instâncias EC2
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -17,7 +17,8 @@ Resources:
       Tags:
         - Key: Name
           Value: SecurityGroup
-
+  
+  # Configuração da VPC onde todos os recursos da rede serão implantados
   gustavoVPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -28,6 +29,7 @@ Resources:
         - Key: Name
           Value: gustavoVPC
 
+  # Definição das subnets públicas dentro da VPC
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -50,7 +52,7 @@ Resources:
         - Key: Name
           Value: PublicSubnet2
 
-  # IAM Role para acesso ao S3
+  # Configuração da IAM Role para permitir que as instâncias EC2 acessem recursos específicos no S3 e DynamoDB
   S3AccessRole:
     Type: AWS::IAM::Role
     Properties:
@@ -78,14 +80,14 @@ Resources:
                   - "dynamodb:UpdateItem"
                 Resource: "arn:aws:dynamodb:us-east-1:116979769772:table/Users"
 
-  # Instance Profile para a IAM Role
+  # Instance Profile que associa a IAM Role às instâncias EC2
   EC2InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Roles:
         - !Ref S3AccessRole
 
-  # Launch Configuration
+  # Launch Configuration: Define uma configuração de lançamento que especifica uma AMI e configurações de instância, incluindo a instalação de software via UserData.
   AppLaunchConfiguration:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -94,6 +96,7 @@ Resources:
       SecurityGroups:
         - !Ref SecurityGroup
       IamInstanceProfile: !Ref EC2InstanceProfile
+      # userData para colocar a aplicação nas instancias
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
@@ -115,7 +118,7 @@ Resources:
           # Executar a aplicação (ajustar conforme necessário)
           python3 /opt/app/aplicacao.py
 
-  # Auto Scaling Group
+  # Auto Scaling Group (ASG): Configura um grupo de auto scaling que utiliza o Launch Configuration para escalar automaticamente as instâncias.
   AppAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
@@ -126,11 +129,13 @@ Resources:
       VPCZoneIdentifier:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
+      # Integração do ASG com o ALB através do Target Group: ASG está vinculado ao ALB através de um Target Group especificado.
       TargetGroupARNs:
         - !Ref AppTargetGroup
       MetricsCollection:
         - Granularity: "1Minute"
   
+  # Alarmes de CloudWatch para monitorar e responder a condições específicas, como alta utilização de CPU (no caso 70%)
   CPUUtilizationAlarmHigh:
     Type: AWS::CloudWatch::Alarm
     Properties:
@@ -150,6 +155,7 @@ Resources:
       OKActions:
         - !Ref ScaleInPolicy
 
+  # Políticas de escalabilidade para aumentar ou diminuir o número de instâncias automaticamente
   ScaleOutPolicy:
     Type: AWS::AutoScaling::ScalingPolicy
     Properties:
@@ -169,6 +175,7 @@ Resources:
       Cooldown: 300
 
   # Application Load Balancer, Target Group, and Listener
+  # Provisionar um ALB: ALB configurado para distribuir o tráfego entre instâncias EC2.
   AppLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
@@ -178,19 +185,22 @@ Resources:
         - !Ref PublicSubnet2
       SecurityGroups:
         - !Ref SecurityGroup
+  # Configurar Target Groups: Definição de Target Group para gerenciar as instâncias EC2 com configurações de Health Check.
   AppTargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       VpcId: !Ref gustavoVPC
-      Protocol: HTTP
-      Port: 80
+      Protocol: HTTP # Define o protocolo usado pelo Target Group
+      Port: 80 
+      # Health Checks: Implementados no Target Group para garantir que o tráfego seja direcionado apenas para instâncias saudáveis.
       HealthCheckProtocol: HTTP
       HealthCheckPort: "80"
       HealthCheckPath: "/"
-      HealthCheckIntervalSeconds: 30
-      HealthCheckTimeoutSeconds: 5
-      HealthyThresholdCount: 3
-      UnhealthyThresholdCount: 3
+      HealthCheckIntervalSeconds: 30 # Intervalo entre os health checks
+      HealthCheckTimeoutSeconds: 5  # Tempo máximo de espera por uma resposta de health check
+      HealthyThresholdCount: 3 # Número de verificações sucessivas para considerar a instância saudável
+      UnhealthyThresholdCount: 3 # Número de verificações falhas para considerar a instância não saudável
+  # Listener para o ALB, que direciona o tráfego recebido para o Target Group
   Listener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
@@ -201,36 +211,36 @@ Resources:
       Port: 80
       Protocol: HTTP
 
-    # Criar o Internet Gateway
+  # Criação do Internet Gateway para permitir comunicação entre a VPC e a internet
   InternetGateway:
     Type: AWS::EC2::InternetGateway
 
-  # Anexar o Internet Gateway à VPC
+  # Anexação do Internet Gateway à VPC
   GatewayAttachment:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref gustavoVPC
       InternetGatewayId: !Ref InternetGateway
 
-        # Tabela de rotas para a VPC
+  # Tabela de rotas para a VPC que define como o tráfego é direcionado
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref gustavoVPC
 
-  # Rota para o tráfego de internet
+  # Tabela de rotas para a VPC que define como o tráfego é direcionado
   InternetRoute:
     Type: AWS::EC2::Route
     Properties:
       RouteTableId: !Ref PublicRouteTable
-      DestinationCidrBlock: 0.0.0.0/0
+      DestinationCidrBlock: 0.0.0.0/0 # Define que a rota aplica-se a todo o tráfego
       GatewayId: !Ref InternetGateway
 
-  # Associar subnets públicas à tabela de rotas
+  # Associações entre as subnets públicas e a tabela de rotas para garantir que possam acessar a internet
   PublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      SubnetId: !Ref PublicSubnet1
+      SubnetId: !Ref PublicSubnet1 # Subnet a ser associada
       RouteTableId: !Ref PublicRouteTable
 
   PublicSubnet2RouteTableAssociation:
@@ -240,25 +250,46 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
 
 
-  # DynamoDB Table
+  # Provisionar uma instância DynamoDB: Tabela DynamoDB configurada dentro da VPC.
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: "Users"
+      TableName: "Users" # Nome da Tabela
       AttributeDefinitions:
-        - AttributeName: "UserID"
-          AttributeType: "S"
+        - AttributeName: "UserID" # Definicao do atributo da chave primaria
+          AttributeType: "S" # Tipo String
       KeySchema:
-        - AttributeName: "UserID"
+        - AttributeName: "UserID" # Tipo da chave primaria como hash
           KeyType: "HASH"
       ProvisionedThroughput:
-        ReadCapacityUnits: 5
-        WriteCapacityUnits: 5
+        ReadCapacityUnits: 5 # Unidades de capacidade de leitura
+        WriteCapacityUnits: 5 # Unidades de capacidade de escrita
       Tags:
         - Key: "Name"
           Value: "Users"
+  
+  # Endpoint VPC para DynamoDB para permitir acesso direto e privado à tabela de dentro da VPC sem necessidade de acesso a internet
+  DynamoDBVpcEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref gustavoVPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.dynamodb"
+      VpcEndpointType: "Interface"
+      SubnetIds:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      PrivateDnsEnabled: false
+      SecurityGroupIds:
+        - !Ref SecurityGroup
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal: "*"
+            Action: "dynamodb:*"
+            Resource: "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/Users"
 
-
+# Output para conseguir pegar o DNS do ALB sem ter que entrar no dashboard
 Outputs:
   LoadBalancerDNS:
     Description: "DNS Name of the Application Load Balancer"
