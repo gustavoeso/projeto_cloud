@@ -43,3 +43,43 @@ Criar usuario:
 Deletar usuario:
     curl -X DELETE "http://<DNS-DO-ALB>/delete_user?user_id=<ID-DO-USUARIO>"
         Onde <DNS-DO-ALB> é o DNS do Aplication Load Balancer e <ID-DO-USUARIO> é o ID do usuario que deseja deletar
+
+
+############################################################ COMO RODAR ############################################################
+
+Passo 1:
+    Rodar comando de criação do bucket e da stack
+        Windows:
+            ./script_criacao_windows.ps1
+        Linux:
+            chmod +x script_criacao_linux.sh
+            ./script_criacao_linux.sh
+
+
+Passo 2:
+    Pegar o DNS do Load Balancer 
+        aws cloudformation describe-stacks --stack-name StackGustavo --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDNS`].OutputValue' --output text
+
+Passo 3:
+    Fazer a criação de usuario (apenas linux) utilizando o DNS do ultimo comando e substiuindo no <DNS-DO-ALB>
+        curl -X POST http://<DNS-DO-ALB>/create_user -H "Content-Type: application/json" -d '{"user_id": "1", "user_name": "Exemplo"}'
+
+Passo 4:
+    Testar se o usuario foi criado Onde DNS é o DNS obtido pelo comando de pegar o DNS do ALB
+        DNS.com/list_users
+
+Passo 5:
+    Deletar usuario (apenas linux) utilizando o DNS do ultimo comando e substiuindo no <DNS-DO-ALB>
+        curl -X DELETE "http://<DNS-DO-ALB>/delete_user?user_id=1"
+
+Passo 6:
+    Testar se o usuario foi deletado
+        DNS.com/list_users
+
+Passo 7:
+    Deletar bucket e Stack rodando o comando de deletar
+        windows:
+            ./script_deletar_windows.ps1
+        Linux:
+            chmod +x script_deletar_linux.sh
+            ./script_deletar_linux.sh
