@@ -55,7 +55,6 @@ Passo 1:
             chmod +x script_criacao_linux.sh
             ./script_criacao_linux.sh
 
-
 Passo 2:
     Pegar o DNS do Load Balancer 
         aws cloudformation describe-stacks --stack-name StackGustavo --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDNS`].OutputValue' --output text

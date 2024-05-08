@@ -1,5 +1,5 @@
 Resources:
-  # # Definição do grupo de segurança que especifica as regras de tráfego permitidas para as instâncias EC2
+  # Definição do grupo de segurança que especifica as regras de tráfego permitidas para as instâncias EC2
   SecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -29,7 +29,7 @@ Resources:
         - Key: Name
           Value: gustavoVPC
 
-  # Definição das subnets públicas dentro da VPC
+  # Definição das subnets públicas dentro da VPC cada uma em uma zona diferente
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     Properties:
@@ -52,7 +52,7 @@ Resources:
         - Key: Name
           Value: PublicSubnet2
 
-  # Configuração da IAM Role para permitir que as instâncias EC2 acessem recursos específicos no S3 e DynamoDB
+  # Configuração da IAM Role para permitir que as instâncias EC2 acessem recursos específicos no S3 e DynamoDB (estava dando erro sem isso)
   S3AccessRole:
     Type: AWS::IAM::Role
     Properties:
@@ -126,6 +126,7 @@ Resources:
       MinSize: '1'
       MaxSize: '5'
       DesiredCapacity: '3'
+      # Necessario utilizar duas subnets para garantir alta disponibilidade
       VPCZoneIdentifier:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
@@ -147,7 +148,7 @@ Resources:
           Value: !Ref AppAutoScalingGroup
       Statistic: Average
       Period: 300
-      EvaluationPeriods: 1
+      EvaluationPeriods: 1 # Número de períodos de avaliação antes de acionar o alarme
       Threshold: 70
       ComparisonOperator: GreaterThanOrEqualToThreshold
       AlarmActions:
@@ -205,9 +206,9 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
       DefaultActions:
-        - Type: forward
+        - Type: forward # Ação padrão para encaminhamento do tráfego para o Target Group
           TargetGroupArn: !Ref AppTargetGroup
-      LoadBalancerArn: !Ref AppLoadBalancer
+      LoadBalancerArn: !Ref AppLoadBalancer # Referência ao ALB associado
       Port: 80
       Protocol: HTTP
 
