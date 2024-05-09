@@ -23,7 +23,7 @@ Rodar o script no linux:
 ############################################################ STACK ############################################################
 
 Editar stack:
-    aws cloudformation update-stack --stack-name <Nome-da-sua-stack> --template-body file://projeto.yaml --parameters ParameterKey=ParamName,ParameterValue=ParamValue
+    aws cloudformation update-stack --stack-name <Nome-da-sua-stack> --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
         Onde <Nome-da-sua-stack> é o nome da stack criada
 
 

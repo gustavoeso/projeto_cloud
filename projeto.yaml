@@ -135,6 +135,18 @@ Resources:
         - !Ref AppTargetGroup
       MetricsCollection:
         - Granularity: "1Minute"
+
+    #ACHO QUE NAO FUNCIONOU
+      Tags:
+        - Key: "Name"
+          Value: "instances-gustavo"
+          PropagateAtLaunch: true
+        - Key: "Environment"
+          Value: "Production"
+          PropagateAtLaunch: true
+        - Key: "Project"
+          Value: "MyApplication"
+          PropagateAtLaunch: true
   
   # Alarmes de CloudWatch para monitorar e responder a condições específicas, como alta utilização de CPU (no caso 70%)
   CPUUtilizationAlarmHigh:
