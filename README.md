@@ -14,10 +14,21 @@ E na imagem 2 podemos ver o projeto estruturado por meio da AWS, onde ele mostra
 
 ## Projeção de custo
 
-Para a projeção de custo, foi utilizado a calculadora de custos da AWS colocando os recursos utilizados para o projeto. Para isso, foi considerado os recursos de CloudFormation, VPC, EC2, S3 (bucket), CloudWatch, Elastic Load Balancing e DynamoDB. Foram utilizados os menores parâmetros possíveis para refletir o mais perto possível do que seria um custo real da aplicação utilizada, mas ainda os recursos mínimos são muito maiores do que realmente é utilizado pelo projeto. Com isso, observando a imagem 3, podemos ver que o custo deu por volta de 107,33 USD, o que equivale a aproximadamente 549,95 BRL.
+Para a projeção de custo, foi utilizado a calculadora de custos da AWS colocando os recursos utilizados para o projeto. Para isso, foi considerado os recursos de CloudFormation, VPC, EC2, S3 (bucket), CloudWatch, Elastic Load Balancing e DynamoDB. Foram utilizados os menores parâmetros possíveis para refletir o mais perto possível do que seria um custo real da aplicação utilizada, mas ainda os recursos mínimos são muito maiores do que realmente é utilizado pelo projeto. Com isso, observando a imagem 3, podemos ver que o custo deu por volta de 107,33 USD, o que equivale a aproximadamente 549,95 BRL por mês.
 
 ![imagem 3](/imgs/3.png)
 
+Segue o os preços dos recursos utilizados (por mês) em USD:
+| Recurso                | preço (USD) |
+|------------------------|-------------|
+| AWS CloudFormation     | $26,48      |
+| VPC                    | $4,56       |
+| EC2                    | $12,70      |
+| S3                     | $0,03       |
+| CloudWatch             | $0,30       |
+| Elastic Load balancing | $36,87      |
+| DynamoDB               | $26,39      |
+| Total                  | $107,33     |
 > No repositório no arquivo “My Estimate - AWS Pricing Calculator” está o cálculo de custos por completo com os parâmetros utilizados. Segue o link:
  [análise de custos](https://github.com/gustavoeso/projeto_cloud/blob/main/My%20Estimate%20-%20AWS%20Pricing%20Calculator.pdf)
 
