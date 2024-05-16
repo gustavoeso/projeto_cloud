@@ -18,7 +18,8 @@ Para a projeção de custo, foi utilizado a calculadora de custos da AWS colocan
 
 ![imagem 3](/imgs/3.png)
 
-> No repositório no arquivo “My Estimate - AWS Pricing Calculator” está o cálculo de custos por completo com os parâmetros utilizados.
+> No repositório no arquivo “My Estimate - AWS Pricing Calculator” está o cálculo de custos por completo com os parâmetros utilizados. Segue o link:
+ [análise de custos](https://github.com/gustavoeso/projeto_cloud/blob/main/My%20Estimate%20-%20AWS%20Pricing%20Calculator.pdf)
 
 ## Passo a passo de como rodar o projeto
 
