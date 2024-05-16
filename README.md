@@ -135,7 +135,7 @@ e logo depois disso, executar o script
 
 Caso seja necessário para fazer um update do YAML do projeto, apenas rode o comando:
 ```bash
-aws cloudformation update-stack --stack-name <Nome-da-sua-stack> --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
+aws cloudformation update-stack --stack-name StackGustavo --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
 ```
 
-Onde ```<Nome-da-sua-stack>``` é o nome da stack criada.
+> Note que o projeto está rodando com o nome da stack sendo StackGustavo, isso pode mudar, portanto ao mudar o nome da stack, esse nome teria que mudar em todos os comando que ele é utilizado para o nome desejado. E para funcionar, tambem teria que mudar o nome da stack no script de criação e deletar, onde deve ser modificado na variável ```STACK_NAME```. O mesmo pode ser feito com o bucket, modificando nos comandos necessários e na variável ```BUCKET_NAME``` dos scripts.
