@@ -102,8 +102,10 @@ Com isso o script virou executável, agora é só rodar o comando:
 ./script_criacao_linux.sh
 ```
 
+O script é utilizado para diminuir a quantidade de comandos que o usuário precisaria dar para fazer o projeto rodar, já que tem o comando de criação da stack e também um comando para criação de um bucket, portanto, o script automaticamente cria o bucket com a aplicação e depois criar a stack na ordem corretamente para evitar problemas que poderiam surgir quando o usuário for rodar o projeto.
+
 ### Passo 5 - Pegar o DNS do ALB (Aplication Load Balancer)
-Após aguardar para que a Stack seja devidamente criada, é possível pegar o DNS gerado pelo ALB. Para isso rode o comando:
+Após aguardar alguns minutos para que a Stack seja devidamente criada, é possível pegar o DNS gerado pelo ALB. Para isso rode o comando:
 
 ```bash
 aws cloudformation describe-stacks --stack-name StackGustavo --query 'Stacks[0].Outputs[?OutputKey==`LoadBalancerDNS`].OutputValue' --output text
