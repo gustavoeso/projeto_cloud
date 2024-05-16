@@ -138,7 +138,7 @@ Caso seja necessário para fazer um update do YAML do projeto, apenas rode o com
 aws cloudformation update-stack --stack-name StackGustavo --template-body file://projeto.yaml --capabilities CAPABILITY_IAM
 ```
 
-> Note que o projeto está rodando com o nome da stack sendo StackGustavo, isso pode mudar, portanto ao mudar o nome da stack, esse nome teria que mudar em todos os comando que ele é utilizado para o nome desejado. E para funcionar, tambem teria que mudar o nome da stack no script de criação e deletar, onde deve ser modificado na variável ```STACK_NAME```. O mesmo pode ser feito com o bucket, modificando nos comandos necessários e na variável ```BUCKET_NAME``` dos scripts.
+> Note que o projeto está rodando com o nome da stack sendo StackGustavo, isso pode mudar, portanto ao mudar o nome da stack, esse nome teria que mudar em todos os comandos que ele é utilizado para o nome desejado. E para funcionar, também teria que mudar o nome da stack no script de criação e deletar, onde deve ser modificado na variável ```STACK_NAME```. O mesmo pode ser feito com o bucket, modificando nos comandos necessários e na variável ```BUCKET_NAME``` dos scripts.
 
 ## Descrição dos recursos utilizados para o projeto
 
@@ -185,7 +185,7 @@ aws cloudformation update-stack --stack-name StackGustavo --template-body file:/
   - **UserData**: Script para configuração inicial da instância, como instalação de software.
 
 #### **AppAutoScalingGroup**
-- **Descrição**: Grupo de Auto Scaling que gerencia a escalabilidade das instâncias com base na configuração de lançamento.
+- **Descrição**: Grupo de Auto Scaling que gerencia a escalabilidade das instâncias com base na configuração de lançamento. Foram utilizadas minimo de 1, maximo de 5 e 3 de desejadas instancias para o projeto, mas da forma que o Auto Scaling está configurado, ele faz com que sempre trabalhe com o mínimo possível para melhor gerenciamento de gastos.
 - **Propriedades**:
   - **LaunchConfigurationName**: Nome da configuração de lançamento.
   - **VPCZoneIdentifier**: Identificadores de sub-rede para lançamento das instâncias.
@@ -206,12 +206,9 @@ aws cloudformation update-stack --stack-name StackGustavo --template-body file:/
 #### **DynamoDBTable**
 - **Descrição**: Tabela DynamoDB para armazenamento de dados.
 - **Propriedades**:
-  - **TableName**,
-
- **AttributeDefinitions**, **KeySchema**, **ProvisionedThroughput**: Configurações da tabela.
+  - **TableName**, **AttributeDefinitions**, **KeySchema**, **ProvisionedThroughput**: Configurações da tabela.
 
 #### **DynamoDBVpcEndpoint**
 - **Descrição**: Endpoint da VPC para DynamoDB permitindo acesso direto e privado sem necessidade de tráfego pela internet.
 - **Propriedades**:
   - **VpcId**, **ServiceName**, **VpcEndpointType**, **SubnetIds**, **SecurityGroupIds**, **PolicyDocument**: Especificações do endpoint.
-
