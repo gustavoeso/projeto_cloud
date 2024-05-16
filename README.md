@@ -32,6 +32,14 @@ Esse projeto foi feito para ser rodado no Linux, existem scripts de criação de
 sudo apt install unzip
 ```
 
+Com o unzip instalado, rode o seguinte comando para baixar o AWS CLI:
+
+```bash
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+```
+
 ### Passo 2 - fazer o setup do CLI
 Para conseguir conectar o CLI com a sua conta da AWS, rode o comando:
 
