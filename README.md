@@ -103,7 +103,9 @@ onde ```<DNS-DO-ALB>``` deve ser substituído pelo DNS que foi obtido no passo a
 
 ```bash
 curl -X POST http://<DNS-DO-ALB>/create_user -H "Content-Type: application/json" -d '{"user_id": "1", "user_name": "Exemplo"}'
-``` 
+```
+
+> lembrando de sibstiuir ```<DNS-DO-ALB>``` pelo dns obtido no ultimo comando
 
 Com isso, um usuário com id = 1 e user_name = Exemplo será criado, portanto se recarregar a página de listar usuário, pode-se observar que um usuário foi devidamente criado. Agora para testar se é possível deletar usuário, rode o seguinte comando:
 
