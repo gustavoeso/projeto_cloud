@@ -1,5 +1,3 @@
-Certamente! Vou explicar detalhadamente cada recurso listado no seu arquivo `projeto.yaml` de CloudFormation.
-
 ### Recursos do template CloudFormation:
 
 #### **SecurityGroup**
@@ -76,3 +74,7 @@ Certamente! Vou explicar detalhadamente cada recurso listado no seu arquivo `pro
   - **VpcId**, **ServiceName**, **VpcEndpointType**, **SubnetIds**, **SecurityGroupIds**, **PolicyDocument**: Especificações do endpoint.
 
 Estes recursos são projetados para criar uma infraestrutura de rede robusta e escalável, com foco na segurança e eficiência operacional, apoiando a implementação e operação de aplicações na AWS.
+
+```bash
+teste
+```

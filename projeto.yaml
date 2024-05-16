@@ -104,10 +104,6 @@ Resources:
           sudo yum install -y python3-pip python3
           #instalar o flask
           sudo pip3 install flask
-          # Instalar AWS CLI
-          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-          unzip awscliv2.zip
-          sudo ./aws/install
           # Instalar AWS SDK para Python (Boto3)
           sudo pip3 install boto3
           # Criar diretório para a aplicação
@@ -148,7 +144,7 @@ Resources:
           Value: "MyApplication"
           PropagateAtLaunch: true
   
-  # Alarmes de CloudWatch para monitorar e responder a condições específicas, como alta utilização de CPU (no caso 70%)
+  # Alarmes de CloudWatch para monitorar e responder a condições específicas, como alta utilização de CPU (no caso 70%) e utiliza scaling policies para aumentar ou diminuir o número de instâncias.
   CPUUtilizationAlarmHigh:
     Type: AWS::CloudWatch::Alarm
     Properties:
