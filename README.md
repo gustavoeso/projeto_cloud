@@ -127,7 +127,7 @@ onde ```<DNS-DO-ALB>``` deve ser substituído pelo DNS que foi obtido no passo a
 curl -X POST http://<DNS-DO-ALB>/create_user -H "Content-Type: application/json" -d '{"user_id": "1", "user_name": "Exemplo"}'
 ```
 
-> lembrando de sibstiuir ```<DNS-DO-ALB>``` pelo dns obtido no ultimo comando
+> lembrando de substiuir ```<DNS-DO-ALB>``` pelo dns obtido no ultimo comando
 
 Com isso, um usuário com id = 1 e user_name = Exemplo será criado, portanto se recarregar a página de listar usuário, pode-se observar que um usuário foi devidamente criado. Agora para testar se é possível deletar usuário, rode o seguinte comando:
 
@@ -137,7 +137,35 @@ curl -X DELETE "http://<DNS-DO-ALB>/delete_user?user_id=1"
 
 Isso deve deletar o usuário, portanto ao recarregar a página de listar usuário, ele agora deve estar vazio. Lembrando que todos os parâmetros estão pré-definidos, como id e user-name, mas isso pode ser modificado para testar com outros valores.
 
-### Passo 7 - Deletar a Stack
+### Passo 7 - Teste de Estresse
+Para testar se o auto scailing está funcionando, será necessário utilizar o ```locust``` para fazer o teste. Para isso será necessário instalar o locust na sua máquina. Para isso vamos começar instalando o python se você não tiver instalado:
+
+```bash
+sudo apt update
+sudo apt install python3 python3-pip
+```
+
+Para rodar o programa de estresse, é necessário baixar o locust, portanto rode o seguinte comando:
+
+```bash
+sudo apt install python3-locust
+```
+
+E para rodar o locust, rode o seguinte comando:
+
+```bash
+locust -f locustfile.py -u 100 -r 10 --host http://<DNS-DO-ALB>
+```
+>onde DNS-DO-ALB tem que ser o dns obtido para o DNS do Load Balancer.
+
+Agora, para entrar na interface gráfica, entre no
+```
+http://localhost:8089/
+```
+
+E inicialize o programa de estresse.
+
+### Passo 8 - Deletar a Stack
 Agora que o projeto foi testado e foi possível ver que está tudo funcionando, podemos deletar o projeto. Para isso, basta utilizar o script de deletar o projeto
 ```
 script_deletar_linux.sh
