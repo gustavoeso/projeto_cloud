@@ -35,7 +35,6 @@ Segue o os preços dos recursos utilizados (por mês) em USD:
 ## Permissões IAM necessárias para rodar o projeto
 - AdministratorAccess
 - AmazonDynamoDBFullAccess
-- AmazonDynamoDBFullAccesswithDataPipeline
 - AmazonEC2FullAccess
 - AmazonS3FullAccess
 - AWSCloudFormationFullAccess
