@@ -32,6 +32,16 @@ Segue o os preços dos recursos utilizados (por mês) em USD:
 > No repositório no arquivo “My Estimate - AWS Pricing Calculator” está o cálculo de custos por completo com os parâmetros utilizados. Segue o link:
  [análise de custos](https://github.com/gustavoeso/projeto_cloud/blob/main/My%20Estimate%20-%20AWS%20Pricing%20Calculator.pdf)
 
+## Permissões IAM necessárias para rodar o projeto
+- AdministratorAccess
+- AmazonDynamoDBFullAccess
+- AmazonDynamoDBFullAccesswithDataPipeline
+- AmazonEC2FullAccess
+- AmazonS3FullAccess
+- AWSCloudFormationFullAccess
+- ElasticLoadBalancingFullAccess
+- IAMFullAccess
+
 ## Passo a passo de como rodar o projeto
 
 Esse projeto foi feito para ser rodado no Linux, existem scripts de criação de Stack para Windows, mas para testar ele utiliza comandos que funcionam apenas em Linux.
